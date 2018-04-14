@@ -1,5 +1,14 @@
 import praw
 import praw.reddit
+from datetime import datetime
+import re
+import json
+
+def checkIsMiddleMan(middleman):
+    middlemen = ["Redditor(name='BrandonSalsa')", "Redditor(name='WrK_OG_PRIEST')", "Redditor(name='thuggarl')", "Redditor(name='AerospaceNinja')", "Redditor(name='merkface')", "Redditor(name='Gek_Lhar')", "Redditor(name='itsYAWBEE')", "Redditor(name='sweetrevenge117')"]
+    if middleman in middlemen:
+        pass
+
 
 def main():
     #i scrape reddit, i scrape a specific post, i scrape only comments on that specific post.
@@ -7,7 +16,7 @@ def main():
 
     #token information
     handle = 'prophase25'
-    userAgent = "RLEScraper/0.1 by " + handle
+    userAgent = "RLEScraper/0.3 by " + handle
     clientId = 'qgnEoTgYm4MdgQ'
     clientSecret = "ImRfDVCN_hJ2wCfQs5VXYqNlp8o"
     pw = "TOREPLACE"
@@ -23,58 +32,75 @@ def main():
     #prior work
     r = praw.Reddit(user_agent = userAgent, client_id = clientId, client_secret = clientSecret, username = handle, password = pw)
     submission = r.submission(url = url)
-    submission.comments.replace_more(limit = 5)
+    submission.comment_sort = 'new'
+    submission.comments.replace_more(limit = 10)
     #/prior work/
 
 
     #iterate over submission comments
     for comment in submission.comments.list():
 
-        #todo CHECK: over the middlemen comments
-        if (comment.author == "Redditor(name='BrandonSalsa')"):
-            pass#eroonie
-        if (comment.author == "Redditor(name='WRKOGPriest')"):
-            pass#eroonie
-        if (comment.author == "Redditor(name='WesELMOwes')"):
-            pass#eroonie
-        if (comment.author == "Redditor(name='Modulartor')"):
-            pass#eroonie
-        if (comment.author == "Redditor(name='TheModuloMan')"):
-            pass#eroonie
-        #/todo CHECK: over the middlemen comments/
+        #todo CHECK: pass over the middlemen comments
+        checkIsMiddleMan(comment.author)
+        #/todo CHECK: pass over the middlemen comments/
 
         #todo CHECK:pass over the duplicate authors
         if comment.author in authorLister:
-            pass#abippity
+            pass
         #/todo CHECK: pass over the duplicate authors/
 
         #todo CHECK: pass over dupe comments
         if comment.body in keyDict:
-            pass#adiddly
+            pass
         #/todo CHECK: pass over dupe comments/
-
-        #todo CHECK: pass over replies
-        if comment.body in comment.replies:
-            pass#adoodly
-        #/todo CHECK: pass over replies/
-
 
         else: #if not a middleman, reply, duplicate author, or duplicate post
             authorLister.append(comment.author)
 
             if counter != 0: #sticky pass
-                keyDict[comment.author] = comment.body
+                p = re.compile('\[[hH]\] \$\d')
 
-        counter += 1 #de sticks
+                if p.match(comment.body) is not None:
+                    keyDict[str(comment.author)] = (comment.body, datetime.fromtimestamp(
+                        comment.created_utc
+                    ).strftime('%Y-%m-%d %H:%M:%S'), comment.permalink)
 
-    #bork
-    #bork
-    #bork
+
+
+        counter += 1
+
 
     #/iterate over submission comments/
 
+    #handle keyDict
+
+    #/handle keyDict/
+
+
+
     #show me what you got
     print(keyDict)
+    # reddit_json = json.dumps(keyDict)
+    split_pattern = re.compile('\[W\]')
+    l = split_pattern.split(keyDict['Ecyra'][0])
+    quantity = re.split(r'\s', l[1])[1]
+    item_name = re.split(r'\d', l[1])[1]
+    print(l)
+    print(quantity)
+    print(item_name)
+    # print(reddit_json.keys)
+    # lr = json.loads(r)
+
+    #keyDict.clear()
     #/show me what you got/
 
+    #parse me what you got
+    #parser(dudeWhereIsMyCar)
+    #/parse me what you got/
+
 main()
+
+
+
+
+
