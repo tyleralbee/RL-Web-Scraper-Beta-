@@ -6,7 +6,7 @@ import json
 import pickle
 class Item:
     def __init__(self):
-        self.count = 1
+        self.count = 0
 
     def setName(self, name):
         self.name = name
@@ -26,15 +26,14 @@ class Item:
     def getPaint(self):
         return self.paint
 
-    def setAvgPriceDollars(self, avgPriceDollars):
-        self.avgPriceDollars = avgPriceDollars
+    def setAvgPriceDollars(self, avgPriceDollars, count):
+        self.count += 1
+        self.avgPriceDollars = avgPriceDollars/count
 
     def getAvgPriceDollars(self):
         return self.avgPriceDollars
 
-    def updateAvgPricesDollars(self, data):
-        self.count += 1
-        self.avgPriceDollars = ((data + self.getAvgPriceDollars)/self.count)
+
 
     def saveInfo(self):
         itemInfo = {self.name:[self.cert, self.paint, self.avgPriceDollars]}
@@ -53,11 +52,11 @@ def main():
     #TODO: i scrape facebook, i scrape a specific group, i scrape only posts in that specific group.
 
     #token information
-    handle = 'TOREPLACE'
-    userAgent = "TOREPLACE" + handle
-    clientId = 'TOREPLACE'
-    clientSecret = "TOREPLACE"
-    pw = "TOREPLACE"
+    handle = 'prophase25'
+    userAgent = "RLEScraper/0.3 by " + handle
+    clientId = 'qgnEoTgYm4MdgQ'
+    clientSecret = "ImRfDVCN_hJ2wCfQs5VXYqNlp8o"
+    pw = "nvojtaejtyler96"
     #/token information/
 
     #state variables
@@ -74,7 +73,7 @@ def main():
     r = praw.Reddit(user_agent = userAgent, client_id = clientId, client_secret = clientSecret, username = handle, password = pw)
     submission = r.submission(url = url)
     submission.comment_sort = 'new'
-    submission.comments.replace_more(limit = 500)
+    submission.comments.replace_more(limit = 10)
     #/prior work/
 
     #rocket league metadata TODO: deal with spaces
@@ -128,20 +127,27 @@ def main():
                     print(lW)
 
                     quantityH = re.split(r'\s', lW[0])[1]
-
+                    quantityW = re.split(r'\s', lW[1])[1]
                     wordList = lW[1].split()
+                    wordList2 = lW[0].split()
+
                     if '$' in quantityH:
                         for word in wordList:
 
+
                             #CRATE HANDLING
-                            if (word.lower() in crates):                            #crates cannot be certified/painted
+                            if (word.lower()[:3] in crates):                            #crates cannot be certified/painted
                                 #TODO: check if crate is followed with something like 'imports'
                                 classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $1) to x and store {word (maybe: cc4): x }
                                 #TODO: check if object is already created
                                 #if object created, update avg price
                                 obj = Item()                                        #if not:create an object instance
-                                obj.setName(word)
-                                obj.setAvgPriceDollars(quantityH.replace('$',''))
+                                obj.setName(word[:3])
+                                try:
+                                    float(quantityW)
+                                    obj.setAvgPriceDollars(int(quantityH.replace('$','')), int(quantityW))
+                                except ValueError:
+                                    return False
                                 print('crates!')
                             #/CRATE HANDLING
 
@@ -182,11 +188,11 @@ def main():
                                 if certHolder:                                      #if one of the previous words was a cert, parser is done
                                     obj.setName(word)
                                     obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(quantityH.replace('$', ''))
+                                    obj.setAvgPriceDollars(quantityH.replace('$', ''), quantityW)
                                     print('cert BMD!')
                                 else:
                                     obj.setName(word)
-                                    obj.setAvgPriceDollars(quantityH.replace('$', ''))
+                                    obj.setAvgPriceDollars(quantityH.replace('$', ''), quantityW)
                                     print('BMD!')
                             #/BMD HANDLING
 
@@ -200,7 +206,7 @@ def main():
                                     obj.setName(word)
                                     obj.setCert(certHolder)
                                     obj.setAvgPriceDollars(classDict[word])
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                     print('cert BMGE!')
                                 else:
                                     obj.setName(word)
@@ -217,7 +223,7 @@ def main():
                                     obj.setName(word)
                                     obj.setCert(certHolder)
                                     obj.setAvgPriceDollars(classDict[word])
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                     print('cert wheels!')
                                 else:
                                     obj.setName(word)
@@ -234,7 +240,7 @@ def main():
                                     obj.setName(word)
                                     obj.setCert(certHolder)
                                     obj.setAvgPriceDollars(classDict[word])
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                     print('cert boost!')
                                 else:
                                     obj.setName(word)
@@ -251,7 +257,7 @@ def main():
                                     obj.setName(word)
                                     obj.setCert(certHolder)
                                     obj.setAvgPriceDollars(classDict[word])
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                     print('cert decal!')
                                 else:
                                     obj.setName(word)
@@ -268,7 +274,7 @@ def main():
                                     obj.setName(word)
                                     obj.setCert(certHolder)
                                     obj.setAvgPriceDollars(classDict[word])
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                     print('cert trail!')
                                 else:
                                     obj.setName(word)
@@ -323,7 +329,7 @@ def main():
                                     obj.setName(word)
                                     obj.setCert(certHolder)
                                     obj.setAvgPriceDollars(classDict[word])
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
 
                                     if paintHolder:
                                         obj.setPaint(paintHolder)
@@ -346,13 +352,13 @@ def main():
                                     if paintHolder:
                                         obj.setPaint(paintHolder)
                                         print('cert paint car!')
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                 else:
                                     obj.setName(word)
                                     if paintHolder:
                                         obj.setPaint(paintHolder)
                                         print('paint car!')
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                             #/CAR BODY HANDLING
 
                             #PAINTED DECAL HANDLING
@@ -365,12 +371,12 @@ def main():
                                     obj.setCert(certHolder)
                                     if paintHolder:
                                         obj.setPaint(paintHolder)
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                 else:
                                     obj.setName(word)
                                     if paintHolder:
                                         obj.setPaint(paintHolder)
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                             #/PAINTED DECAL HANDLING
 
                             #PAINTED BOOST HANDLING
@@ -383,12 +389,12 @@ def main():
                                     obj.setCert(certHolder)
                                     if paintHolder:
                                         obj.setPaint(paintHolder)
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                                 else:
                                     obj.setName(word)
                                     if paintHolder:
                                         obj.setPaint(paintHolder)
-                                    obj.saveInfo()
+                                    #obj.saveInfo()
                             #/PAINTED BOOST HANDLING
 
                             #NO MATCH HANDLING
@@ -400,7 +406,7 @@ def main():
                         certHolder = ''
                         paintHolder = ''
                         
-                    else: #if '$' not in quantityH:
+                    else:
                         item_nameH = re.split(r'\s', lW[0])[1]
 
 
@@ -415,8 +421,3 @@ def main():
         counter += 1
 
 main()
-
-
-
-
-
