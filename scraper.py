@@ -52,11 +52,11 @@ def main():
     #TODO: i scrape facebook, i scrape a specific group, i scrape only posts in that specific group.
 
     #token information
-    handle = 'prophase25'
-    userAgent = "RLEScraper/0.3 by " + handle
-    clientId = 'qgnEoTgYm4MdgQ'
-    clientSecret = "ImRfDVCN_hJ2wCfQs5VXYqNlp8o"
-    pw = "nvojtaejtyler96"
+    handle = 'TOREPLACE'
+    userAgent = "TOREPLACE" + handle
+    clientId = 'TOREPLACE'
+    clientSecret = "TOREPLACE"
+    pw = "TOREPLACE"
     #/token information/
 
     #state variables
