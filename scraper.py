@@ -33,11 +33,14 @@ class Item:
     def getAvgPriceDollars(self):
         return self.avgPriceDollars
 
-
+    def updateItem(self, name, cert = 'none', paint = 'none'):
+        self.setName(name)
+        self.setCert(cert)
+        self.setPaint(paint)
 
     def saveInfo(self):
         itemInfo = {self.name:[self.cert, self.paint, self.avgPriceDollars]}
-        with open('itemInfo.p', 'wb') as fp:
+        with open('itemInfo.p', 'ab') as fp:
             pickle.dump(itemInfo, fp, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -66,6 +69,7 @@ def main():
     classDict = {}
     certHolder = ''
     paintHolder = ''
+    importHolder = ''
     url = 'https://www.reddit.com/r/RocketLeagueExchange/comments/7flk39/5xbox_anythinggoes_trading_thread_paypal_dlc/'
     #/state variables/
 
@@ -80,9 +84,9 @@ def main():
     paints = ['black', 'sienna', 'cobalt', 'crimson', 'green', 'grey', 'lime', 'orange', 'pink', 'purple', 'saffron', 'blue', 'white']
     certs = ['acrobat', 'aviator', 'goalkeeper', 'guardian', 'juggler', 'paragon', 'playmaker', 'scorer', 'show-off', 'sniper', 'striker', 'sweeper', 'tactician', 'turtle', 'victor']
     cars = ['samurai', 'werewolf', 'imperator', 'jäger', 'animus', 'centio', 'endo', 'mantis', 'octane', 'merc', 'road hog', 'breakout', 'venom', 'x-devil']
-    paintedWheels = ['chak', 'photon', 'looper', 'lobo', 'voltaic', 'troika', 'pulsus', 'disco', 'spiralis', 'fsl', 'ara', 'zomba', 'septem', 'kalos', 'roulette', 'fireplug', 'triplex', 'k2', 'draco', 'slk', 'fgsp', 'turbine', 'gaiden', 'saptarishi', 'chrono', 'clockwork', 'revenant', 'grimalkin', 'cauldron', 'yuzo', 'hiro', 'equalizer', 'hikari', 'pepper', 'wreath', 'wonderment', 'nipper', 'balla-carra', 'infinium', 'apex', 'ninja', 'razzle', 'aether', 'doughnut', 'lustrum', 'illuminata', 'hypnotik', 'diomedes', 'kyrios', 'reevrb', 'vortex', 'dieci', 'sunburst', 'tunica', 'spyder', 'alchemist', 'invader', 'stern', 'octavian', 'neptune', 'oem', 'veloce', 'almas', 'rat rod', 'falco', 'lowrider', 'trahere', 'asterias', 'zeta']
+    paintedWheels = ['chak', 'chakrams', 'loopers', 'photons', 'clocks', 'photon', 'looper', 'lobo', 'voltaic', 'volts', 'troikas', 'pulsus', 'discos', 'spiralis', 'fsl', 'ara', 'zomba', 'septem', 'kalos', 'roulette', 'fireplug', 'triplex', 'k2', 'dracos', 'zombas', 'slk', 'fgsp', 'turbine', 'gaiden', 'saptarishi', 'chrono', 'clockwork', 'revenant', 'grimalkin', 'cauldron', 'yuzo', 'hiro', 'equalizer', 'hikari', 'pepper', 'wreath', 'wonderment', 'nipper', 'balla-carra', 'infinium', 'apex', 'ninja', 'razzle', 'aether', 'doughnut', 'lustrum', 'illuminata', 'hypnotik', 'diomedes', 'kyrios', 'reevrb', 'vortex', 'dieci', 'sunburst', 'tunica', 'spyder', 'alchemist', 'invader', 'stern', 'octavian', 'neptune', 'oem', 'veloce', 'almas', 'rat rod', 'falco', 'lowrider', 'trahere', 'asterias', 'zeta']
     wheels = ['gearlock', 'zt-17', 'flash wheels', 'decenium pro', 'sovereign pro', 'carriage', 'wwe']
-    crates = ['triumph', 'cc1', 'cc2', 'cc3', 'cc4', 'turbo', 'nitro', 'pcc', 'velocity', 'accelerator', 'secret santa', 'overdrive', 'halloween', 'victory']
+    crates = ['triumph', 'triumphs', 'pccs', 'cc1s', 'cc2s', 'cc3s', 'cc4s', 'turbos', 'nitros', 'cc1', 'cc2', 'cc3', 'cc4', 'turbo', 'nitro', 'pcc', 'velocity', 'accelerator', 'secret santa', 'overdrive', 'halloween', 'victory']
     blackMarketDecals = ['dissolver', 'chameleon', 'heat', 'trigon', 'bubbly', '20xx', 'bio', 'slip', 'para', 'spectre', 'tora', 'lab', 'hex', 'storm']
     blackMarketGoalExplosions = ['dueling', 'popcorn', 'hellfire', 'poly', 'party', 'electro', 'sub', 'fireworks', 'toon', 'atomizer', 'ballistic', 'butterflies', 'happy holidays', 'reaper', 'vampire bats']
     paintedBoosts = ['comet', 'springtime flowers', 'geo soul', 'blast ray', 'tsunami', 'toon sketch', 'fractal', 'power shot', 'helios', 'hexphase', 'magic missile', 'neo-thermal', 'tachyon', 'datastream', 'flamethrower', 'ion', 'lightning', 'plasma', 'sacred', 'sparkles', 'standard', 'thermal']
@@ -122,6 +126,8 @@ def main():
                         comment.created_utc
                     ).strftime('%Y-%m-%d %H:%M:%S'), comment.permalink)
                     split_patternW = re.compile('\[W\]', flags=re.IGNORECASE)
+
+
                     lW = split_patternW.split(keyDict[str(comment.author)][0])
 
                     print(lW)
@@ -133,291 +139,316 @@ def main():
 
                     if '$' in quantityH:
                         for word in wordList:
-
-
                             #CRATE HANDLING
-                            if (word.lower()[:3] in crates):                            #crates cannot be certified/painted
-                                #TODO: check if crate is followed with something like 'imports'
-                                classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $1) to x and store {word (maybe: cc4): x }
-                                #TODO: check if object is already created
-                                #if object created, update avg price
-                                obj = Item()                                        #if not:create an object instance
-                                obj.setName(word[:3])
-                                try:
-                                    float(quantityW)
-                                    obj.setAvgPriceDollars(int(quantityH.replace('$','')), int(quantityW))
-                                except ValueError:
-                                    return False
-                                print('crates!')
-                            #/CRATE HANDLING
+                            try:
+                                int(word)
+                                quantityH = int(word)
+                            except ValueError:
+                                if word.lower() in crates:                            #crates cannot be certified/painted
+                                    classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $1) to x and store {word (maybe: cc4): x }
+                                    obj = Item()
+                                    if 'imports' in wordList:
+                                        try:
+                                            float(quantityW)
+                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), int(quantityW))
+                                        except ValueError:
+                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                        importHolder = word + " import"
+                                        obj.updateItem(importHolder)
+                                    elif 'import' in wordList:
+                                        try:
+                                            float(quantityW)
+                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), int(quantityW))
+                                        except ValueError:
+                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                        importHolder = word + " import"
+                                        obj.updateItem(importHolder)
+                                    else:
+                                        try:
+                                            float(quantityW)
+                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), int(quantityW))
+                                        except ValueError:
+                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                        obj.updateItem(word)
+                                    obj.saveInfo()
+                                    print('crates!')
+                                #/CRATE HANDLING
 
-                            #FINISHES HANDLING
-                            elif word in finishes:                                  #finishes cannot be certified/painted
-                                classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $3) to x and store {word (maybe: furry): x }
-                                #TODO: check if object is already created
-                                #if object created, update avg price
-                                obj = Item()
-                                obj.setName(word)
-                                obj.setAvgPriceDollars(quantityH.replace('$',''))
-                                print('finishes!')
-                            #/FINISHES HANDLING
+                                #FINISHES HANDLING
+                                elif word in finishes:                                  #finishes cannot be certified/painted
+                                    classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $3) to x and store {word (maybe: furry): x }
+                                    obj = Item()
+                                    obj.updateItem(word.lower())
+                                    try:
+                                        float(quantityW)
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$','')), int(quantityW))
+                                    except ValueError:
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                    obj.saveInfo()
+                                    print('finishes!')
+                                #/FINISHES HANDLING
 
-                            #ANTENNA HANDLING
-                            elif word in antennas:                                  #antennas cannot be certified/painted
-                                classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $1) to x and store {word (maybe: candy cane): x }
-                                #TODO: check if object is already created
-                                #if object created, update avg price
-                                obj = Item()
-                                obj.setName(word)
-                                obj.setAvgPriceDollars(quantityH.replace('$',''))
-                                print('antenna!')
-                            #/ANTENNA HANDLING
+                                #ANTENNA HANDLING
+                                elif word in antennas:                                  #antennas cannot be certified/painted
+                                    classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $1) to x and store {word (maybe: candy cane): x }
+                                    obj = Item()
+                                    obj.updateItem(word.lower())
+                                    obj.setAvgPriceDollars(quantityH.replace('$',''))
+                                    obj.saveInfo()
+                                    print('antenna!')
+                                #/ANTENNA HANDLING
 
-                            #CERT HANDLING
-                            elif (word.lower() in certs):                           #check if the word is a certification for their item
-                                certHolder = word.lower()                           #store the cert into a temporary variable until we find the name
-                                print('cert!')
-                            #/CERT HANDLING
+                                #CERT HANDLING
+                                elif (word.lower() in certs):                           #check if the word is a certification for their item
+                                    certHolder = word.lower()                           #store the cert into a temporary variable until we find the name
+                                    print('cert!')
+                                #/CERT HANDLING
 
-                            #BMD HANDLING
-                            elif word in blackMarketDecals:                         #BMDs cannot be painted, but can be certified
-                                classDict[word] = quantityH.replace('$','')         #change $x (maybe: $5) to x and store {word (maybe: cc4): x }
-                                # TODO: check if object is already created
-                                # if object created, update avg price
-                                obj = Item()
-                                if certHolder:                                      #if one of the previous words was a cert, parser is done
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(quantityH.replace('$', ''), quantityW)
-                                    print('cert BMD!')
+                                #BMD HANDLING
+                                elif word in blackMarketDecals:                         #BMDs cannot be painted, but can be certified
+                                    classDict[word] = quantityH.replace('$','')         #change $x (maybe: $5) to x and store {word (maybe: cc4): x }
+                                    obj = Item()
+                                    if certHolder:                                      #if one of the previous words was a cert, parser is done
+                                        obj.updateItem(word.lower(), certHolder)
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), quantityW)
+                                        obj.saveInfo()
+                                        print('cert BMD!')
+                                    else:
+                                        obj.updateItem(word.lower())
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), quantityW)
+                                        obj.saveInfo()
+                                        print('BMD!')
+                                #/BMD HANDLING
+
+                                #BMGE HANDLING
+                                elif word in blackMarketGoalExplosions:                 #BMGEs cannot be painted, but can be certified
+                                    classDict[word] = quantityH.replace('$','')         #change $x (maybe: $9) to x and store {word (maybe: hellfire): x }
+                                    obj = Item()
+                                    if certHolder:                                      #if one of the previous words was a cert, parser is done
+                                        obj.updateItem(word.lower(), certHolder)
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('cert BMGE!')
+                                    else:
+                                        obj.updateItem(word.lower())
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('BMGE!')
+                                #/BMGE HANDLING
+
+                                #UNPAINTED WHEEL HANDLING
+                                elif word in wheels:                                    #some wheels cannot be painted, but can be certified
+                                    classDict[word] = quantityH.replace('$','')         #change $x (maybe: $300) to x and store {word (maybe: decennium pro): x }
+                                    obj = Item()
+                                    if certHolder:                                      #if one of the previous words was a cert, parser is done
+                                        obj.updateItem(word.lower(), certHolder)
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('cert wheels!')
+                                    else:
+                                        obj.updateItem(word.lower())
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('wheels!')
+                                #/UNPAINTED WHEEL HANDLING
+
+                                #UNPAINTED BOOST HANDLING
+                                elif word in boosts:                                    #some boosts cannot be painted, but can be certified
+                                    classDict[word] = quantityH.replace('$','')         #change $x (maybe: $9) to x and store {word (maybe: cold fusion): x }
+                                    obj = Item()
+                                    if certHolder:                                      #if one of the previous words was a cert, parser is done
+                                        obj.updateItem(word.lower(), certHolder)
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('cert boost!')
+                                    else:
+                                        obj.updateItem(word.lower())
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('boost!')
+                                #/UNPAINTED BOOST HANDLING
+
+                                #UNPAINTED DECAL HANDLING
+                                elif word in decals:                                    #some decals cannot be painted, but can be certified
+                                    classDict[word] = quantityH.replace('$','')         #change $x (maybe: $0.50) to x and store {word (maybe: racer): x }
+                                    obj = Item()
+                                    if certHolder:                                      #if one of the previous words was a cert, parser is done
+                                        obj.updateItem(word.lower(), certHolder)
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('cert decal!')
+                                    else:
+                                        obj.updateItem(word.lower())
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('decal!')
+                                #/UNPAINTED DECAL HANDLING
+
+                                #TRAIL HANDLING
+                                elif word in trails:                                    #trails cannot be painted, but can be certified
+                                    classDict[word] = quantityH.replace('$','')         #change $x (maybe: $2) to x and store {word (maybe: hot rocks): x }
+                                    obj = Item()
+                                    if certHolder:                                      #if one of the previous words was a cert, parser is done
+                                        obj.updateItem(word.lower(), certHolder)
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('cert trail!')
+                                    else:
+                                        obj.updateItem(word.lower())
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        obj.saveInfo()
+                                        print('trail!')
+                                #/TRAIL HANDLING
+
+                                #PAINT HANDLING
+                                elif (word.lower() == 'sky'):                           #if word is sky they will likely follow it with blue
+                                    print('sky!')
+                                    pass
+                                elif (word.lower() == 'titanium'):                      #'' ''   '' titanium ''   ''     ''     '' ''   white
+                                    print('titanium!')
+                                    pass
+                                elif (word.lower() == 'forest'):                        #'' ''   '' forest   ''   ''     ''     '' ''   green
+                                    print('forest!')
+                                    pass
+                                elif (word.lower() == 'burnt'):                         #'' ''   '' burnt    ''   ''     ''     '' ''   sienna
+                                    print('burnt!')
+                                    pass
+
+                                elif (word.lower() == 'sb'):                            #if word is sb they mean sky blue
+                                    paintHolder = word.lower()
+                                    print('sb!')
+                                elif (word.lower() == 'tw'):                            #'' ''   '' tw ''   ''   titanium white
+                                    paintHolder = word.lower()
+                                    print('tw!')
+                                elif (word.lower() == 'fg'):                            #'' ''   '' fg ''   ''   forest green
+                                    paintHolder = word.lower()
+                                    print('fg!')
+                                elif (word.lower() == 'bs'):                            #'' ''   '' bs ''   ''   burnt sienna (hopefully)
+                                    paintHolder = word.lower()
+                                    print('bs!')
+                                elif (word.lower() == 'crim'):                          #'' ''   '' crim    ''   crimson
+                                    paintHolder = word.lower()
+                                    print('crim!')
+
+                                elif word in paints:                                    #check if the word is a color for their item
+                                    paintHolder = word.lower()                          #store the paint into a temporary variable until we find the name
+                                    print('paint!')
+                                #/PAINT HANDLING
+
+                                #PAINTED WHEEL HANDLING
+                                elif word in paintedWheels:                             #paintedWheels can be both painted and certified
+                                    classDict[word] = quantityH.replace('$', '')
+                                    obj = Item()
+                                    if certHolder:
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), certHolder, paintHolder)
+                                            print('cert paint wheels!')
+                                        else:
+                                            obj.updateItem(word.lower(), certHolder)
+                                            print('cert wheels!')
+                                    else:
+                                        obj.setAvgPriceDollars(classDict[word])
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), 'none', paintHolder)
+                                            print('paint wheels!')
+                                        else:
+                                            obj.updateItem(word.lower())
+                                            print('wheels!')
+                                    obj.saveInfo()
+
+                                #/PAINTED WHEEL HANDLING
+
+                                #CAR BODY HANDLING
+                                elif word in cars:                                      #cars can be both painted and certified
+                                    classDict[word] = quantityH.replace('$', '')
+                                    obj = Item()
+                                    try:
+                                        float(quantityW)
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$','')), int(quantityW))
+                                    except ValueError:
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                    if certHolder:
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), certHolder, paintHolder)
+                                            print('cert paint car!')
+                                        else:
+                                            obj.updateItem(word.lower(), certHolder)
+                                            print('cert car!')
+                                    else:
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), 'none', paintHolder)
+                                            print('paint car!')
+                                        else:
+                                            obj.updateItem(word.lower())
+                                            print('car!')
+                                    obj.saveInfo()
+                                #/CAR BODY HANDLING
+
+                                #PAINTED DECAL HANDLING
+                                elif word in paintedDecals:                             #paintedDecals can be both painted and certified
+                                    classDict[word] = quantityH.replace('$', '')
+                                    obj = Item()
+                                    try:
+                                        float(quantityW)
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$','')), int(quantityW))
+                                    except ValueError:
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                    if certHolder:
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), certHolder, paintHolder)
+                                            print('cert paint decal!')
+                                        else:
+                                            obj.updateItem(word.lower(), certHolder)
+                                            print('cert decal!')
+                                    else:
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), 'none', paintHolder)
+                                            print('paint decal!')
+
+                                        else:
+                                            obj.updateItem(word.lower())
+                                            print('decal!')
+                                    obj.saveInfo()
+                                #/PAINTED DECAL HANDLING
+
+                                #PAINTED BOOST HANDLING
+                                elif word in paintedBoosts:                             #paintedBoosts can be both painted and certified
+                                    classDict[word] = quantityH.replace('$', '')
+                                    obj = Item()
+                                    try:
+                                        float(quantityW)
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$','')), int(quantityW))
+                                    except ValueError:
+                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                    if certHolder:
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), certHolder, paintHolder)
+                                            print('cert paint boost!')
+                                        else:
+                                            obj.updateItem(word.lower(), certHolder)
+                                            print('cert boost!')
+                                    else:
+                                        obj.setName(word)
+                                        obj.setCert('none')
+                                        if paintHolder:
+                                            obj.updateItem(word.lower(), 'none', paintHolder)
+                                            print('paint boost!')
+                                        else:
+                                            obj.updateItem(word.lower())
+                                            print('boost!')
+                                    obj.saveInfo()
+                                #/PAINTED BOOST HANDLING
+
+                                #NO MATCH HANDLING
                                 else:
-                                    obj.setName(word)
-                                    obj.setAvgPriceDollars(quantityH.replace('$', ''), quantityW)
-                                    print('BMD!')
-                            #/BMD HANDLING
-
-                            #BMGE HANDLING
-                            elif word in blackMarketGoalExplosions:                 #BMGEs cannot be painted, but can be certified
-                                classDict[word] = quantityH.replace('$','')         #change $x (maybe: $9) to x and store {word (maybe: hellfire): x }
-                                # TODO: check if object is already created
-                                # if object created, update avg price
-                                obj = Item()
-                                if certHolder:                                      #if one of the previous words was a cert, parser is done
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(classDict[word])
-                                    #obj.saveInfo()
-                                    print('cert BMGE!')
-                                else:
-                                    obj.setName(word)
-                                    print('BMGE!')
-                            #/BMGE HANDLING
-
-                            #UNPAINTED WHEEL HANDLING
-                            elif word in wheels:                                    #some wheels cannot be painted, but can be certified
-                                classDict[word] = quantityH.replace('$','')         #change $x (maybe: $300) to x and store {word (maybe: decennium pro): x }
-                                # TODO: check if object is already created
-                                # if object created, update avg price
-                                obj = Item()
-                                if certHolder:                                      #if one of the previous words was a cert, parser is done
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(classDict[word])
-                                    #obj.saveInfo()
-                                    print('cert wheels!')
-                                else:
-                                    obj.setName(word)
-                                    print('wheels!')
-                            #/UNPAINTED WHEEL HANDLING
-
-                            #UNPAINTED BOOST HANDLING
-                            elif word in boosts:                                    #some boosts cannot be painted, but can be certified
-                                classDict[word] = quantityH.replace('$','')         #change $x (maybe: $9) to x and store {word (maybe: cold fusion): x }
-                                # TODO: check if object is already created
-                                # if object created, update avg price
-                                obj = Item()
-                                if certHolder:                                      #if one of the previous words was a cert, parser is done
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(classDict[word])
-                                    #obj.saveInfo()
-                                    print('cert boost!')
-                                else:
-                                    obj.setName(word)
-                                    print('boost!')
-                            #/UNPAINTED BOOST HANDLING
-
-                            #UNPAINTED DECAL HANDLING
-                            elif word in decals:                                    #some decals cannot be painted, but can be certified
-                                classDict[word] = quantityH.replace('$','')         #change $x (maybe: $0.50) to x and store {word (maybe: racer): x }
-                                # TODO: check if object is already created
-                                # if object created, update avg price
-                                obj = Item()
-                                if certHolder:                                      #if one of the previous words was a cert, parser is done
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(classDict[word])
-                                    #obj.saveInfo()
-                                    print('cert decal!')
-                                else:
-                                    obj.setName(word)
-                                    print('decal!')
-                            #/UNPAINTED DECAL HANDLING
-
-                            #TRAIL HANDLING
-                            elif word in trails:                                    #trails cannot be painted, but can be certified
-                                classDict[word] = quantityH.replace('$','')         #change $x (maybe: $2) to x and store {word (maybe: hot rocks): x }
-                                # TODO: check if object is already created
-                                # if object created, update avg price
-                                obj = Item()
-                                if certHolder:                                      #if one of the previous words was a cert, parser is done
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(classDict[word])
-                                    #obj.saveInfo()
-                                    print('cert trail!')
-                                else:
-                                    obj.setName(word)
-                                    print('trail!')
-                            #/TRAIL HANDLING
-
-                            #PAINT HANDLING
-                            elif (word.lower() == 'sky'):                           #if word is sky they will likely follow it with blue
-                                print('sky!')
-                                pass
-                            elif (word.lower() == 'titanium'):                      #'' ''   '' titanium ''   ''     ''     '' ''   white
-                                print('titanium!')
-                                pass
-                            elif (word.lower() == 'forest'):                        #'' ''   '' forest   ''   ''     ''     '' ''   green
-                                print('forest!')
-                                pass
-                            elif (word.lower() == 'burnt'):                         #'' ''   '' burnt    ''   ''     ''     '' ''   sienna
-                                print('burnt!')
-                                pass
-
-                            elif (word.lower() == 'sb'):                            #if word is sb they mean sky blue
-                                paintHolder = word.lower()
-                                print('sb!')
-                                pass
-                            elif (word.lower() == 'tw'):                            #'' ''   '' tw ''   ''   titanium white
-                                paintHolder = word.lower()
-                                print('tw!')
-                                pass
-                            elif (word.lower() == 'fg'):                            #'' ''   '' fg ''   ''   forest green
-                                paintHolder = word.lower()
-                                print('fg!')
-                                pass
-                            elif (word.lower() == 'bs'):                            #'' ''   '' bs ''   ''   burnt sienna (hopefully)
-                                paintHolder = word.lower()
-                                print('bs!')
-                                pass
-                            elif (word.lower() == 'crim'):                          #'' ''   '' crim    ''   crimson
-                                paintHolder = word.lower()
-                                print('crim!')
-                                pass
-
-                            elif word in paints:                                    #check if the word is a color for their item
-                                print('paint!')
-                                paintHolder = word.lower()                          #store the paint into a temporary variable until we find the name
-                            #/PAINT HANDLING
-
-                            #PAINTED WHEEL HANDLING
-                            elif word in paintedWheels:                             #paintedWheels can be both painted and certified
-                                classDict[word] = quantityH.replace('$', '')
-                                obj = Item()
-                                if certHolder:
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    obj.setAvgPriceDollars(classDict[word])
-                                    #obj.saveInfo()
-
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                        print('cert paint wheels!')
-                                else:
-                                    obj.setName(word)
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                        print('paint wheels!')
-                            #/PAINTED WHEEL HANDLING
-
-                            #CAR BODY HANDLING
-                            elif word in cars:                                      #cars can be both painted and certified
-                                classDict[word] = quantityH.replace('$', '')
-                                obj = Item()
-                                obj.setAvgPriceDollars(classDict[word])
-                                if certHolder:
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                        print('cert paint car!')
-                                    #obj.saveInfo()
-                                else:
-                                    obj.setName(word)
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                        print('paint car!')
-                                    #obj.saveInfo()
-                            #/CAR BODY HANDLING
-
-                            #PAINTED DECAL HANDLING
-                            elif word in paintedDecals:                             #paintedDecals can be both painted and certified
-                                classDict[word] = quantityH.replace('$', '')
-                                obj = Item()
-                                obj.setAvgPriceDollars(classDict[word])
-                                if certHolder:
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                    #obj.saveInfo()
-                                else:
-                                    obj.setName(word)
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                    #obj.saveInfo()
-                            #/PAINTED DECAL HANDLING
-
-                            #PAINTED BOOST HANDLING
-                            elif word in paintedBoosts:                             #paintedBoosts can be both painted and certified
-                                classDict[word] = quantityH.replace('$', '')
-                                obj = Item()
-                                obj.setAvgPriceDollars(classDict[word])
-                                if certHolder:
-                                    obj.setName(word)
-                                    obj.setCert(certHolder)
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                    #obj.saveInfo()
-                                else:
-                                    obj.setName(word)
-                                    if paintHolder:
-                                        obj.setPaint(paintHolder)
-                                    #obj.saveInfo()
-                            #/PAINTED BOOST HANDLING
-
-                            #NO MATCH HANDLING
-                            else:
-                                pass
-                            #/NO MATCH HANDLING
-
-                        item_nameW = re.split(r'\s', lW[1])
+                                    pass
+                                #/NO MATCH HANDLING
                         certHolder = ''
                         paintHolder = ''
-                        
                     else:
-                        item_nameH = re.split(r'\s', lW[0])[1]
+                        pass
 
-
-                    quantityW = re.split(r'\s', lW[1])[1]
-
-
-                    print(quantityH)
-                    #print(item_nameH)
-
-                    #print(quantityW)
-                    print(item_nameW)
         counter += 1
 
 main()
