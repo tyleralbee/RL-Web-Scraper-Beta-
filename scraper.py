@@ -142,33 +142,53 @@ def main():
                             #CRATE HANDLING
                             try:
                                 int(word)
-                                quantityH = int(word)
+                                quantityW = int(word)
                             except ValueError:
                                 if word.lower() in crates:                            #crates cannot be certified/painted
-                                    classDict[word] = quantityH.replace('$', '')        #change $x (maybe: $1) to x and store {word (maybe: cc4): x }
+                                    classDict[word] = float(quantityH.replace('$', ''))        #change $x (maybe: $1) to x and store {word (maybe: cc4): x }
                                     obj = Item()
                                     if 'imports' in wordList:
                                         try:
                                             float(quantityW)
-                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), int(quantityW))
+                                            obj.setAvgPriceDollars(classDict[word], int(quantityW))
                                         except ValueError:
-                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                            obj.setAvgPriceDollars(classDict[word], 1)
                                         importHolder = word + " import"
                                         obj.updateItem(importHolder)
+                                        print('imports!')
                                     elif 'import' in wordList:
                                         try:
                                             float(quantityW)
-                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), int(quantityW))
+                                            obj.setAvgPriceDollars(classDict[word], int(quantityW))
                                         except ValueError:
-                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                            obj.setAvgPriceDollars(classDict[word], 1)
                                         importHolder = word + " import"
                                         obj.updateItem(importHolder)
+                                        print('imports!')
+                                    elif 'Import' in wordList:
+                                        try:
+                                            float(quantityW)
+                                            obj.setAvgPriceDollars(classDict[word], int(quantityW))
+                                        except ValueError:
+                                            obj.setAvgPriceDollars(classDict[word], 1)
+                                        importHolder = word + " import"
+                                        obj.updateItem(importHolder)
+                                        print('imports!')
+                                    elif 'Imports' in wordList:
+                                        try:
+                                            float(quantityW)
+                                            obj.setAvgPriceDollars(classDict[word], int(quantityW))
+                                        except ValueError:
+                                            obj.setAvgPriceDollars(classDict[word], 1)
+                                        importHolder = word + " import"
+                                        obj.updateItem(importHolder)
+                                        print('imports!')
                                     else:
                                         try:
                                             float(quantityW)
-                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), int(quantityW))
+                                            obj.setAvgPriceDollars(classDict[word], int(quantityW))
                                         except ValueError:
-                                            obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                            obj.setAvgPriceDollars(classDict[word], 1)
                                         obj.updateItem(word)
                                     obj.saveInfo()
                                     print('crates!')
@@ -181,9 +201,9 @@ def main():
                                     obj.updateItem(word.lower())
                                     try:
                                         float(quantityW)
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$','')), int(quantityW))
+                                        obj.setAvgPriceDollars(classDict[word], int(quantityW))
                                     except ValueError:
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                        obj.setAvgPriceDollars(classDict[word], 1)
                                     obj.saveInfo()
                                     print('finishes!')
                                 #/FINISHES HANDLING
@@ -210,12 +230,12 @@ def main():
                                     obj = Item()
                                     if certHolder:                                      #if one of the previous words was a cert, parser is done
                                         obj.updateItem(word.lower(), certHolder)
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), quantityW)
+                                        obj.setAvgPriceDollars(classDict[word], quantityW)
                                         obj.saveInfo()
                                         print('cert BMD!')
                                     else:
                                         obj.updateItem(word.lower())
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), quantityW)
+                                        obj.setAvgPriceDollars(classDict[word], quantityW)
                                         obj.saveInfo()
                                         print('BMD!')
                                 #/BMD HANDLING
@@ -391,9 +411,9 @@ def main():
                                     obj = Item()
                                     try:
                                         float(quantityW)
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$','')), int(quantityW))
+                                        obj.setAvgPriceDollars(classDict[word], int(quantityW))
                                     except ValueError:
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                        obj.setAvgPriceDollars(classDict[word], 1)
                                     if certHolder:
                                         if paintHolder:
                                             obj.updateItem(word.lower(), certHolder, paintHolder)
@@ -418,9 +438,9 @@ def main():
                                     obj = Item()
                                     try:
                                         float(quantityW)
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$','')), int(quantityW))
+                                        obj.setAvgPriceDollars(classDict[word], int(quantityW))
                                     except ValueError:
-                                        obj.setAvgPriceDollars(float(quantityH.replace('$', '')), 1)
+                                        obj.setAvgPriceDollars(classDict[word], 1)
                                     if certHolder:
                                         if paintHolder:
                                             obj.updateItem(word.lower(), certHolder, paintHolder)
@@ -452,3 +472,8 @@ def main():
         counter += 1
 
 main()
+
+
+
+
+
