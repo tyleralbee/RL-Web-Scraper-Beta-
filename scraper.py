@@ -55,7 +55,7 @@ def pushToFirebase(self):
 def checkIsMiddleMan(middleman):
     middlemen = ["Redditor(name='BrandonSalsa')", "Redditor(name='WrK_OG_PRIEST')", "Redditor(name='thuggarl')", "Redditor(name='AerospaceNinja')", "Redditor(name='merkface')", "Redditor(name='Gek_Lhar')", "Redditor(name='itsYAWBEE')", "Redditor(name='sweetrevenge117')"]
     if middleman in middlemen:
-        pass
+        return True
 
 
 def main():
@@ -112,17 +112,18 @@ def main():
     for comment in submission.comments.list():
 
         #todo CHECK: pass over the middlemen comments
-        checkIsMiddleMan(comment.author)
+        if checkIsMiddleMan(comment.author):
+            continue
         #/todo CHECK: pass over the middlemen comments/
 
         #todo CHECK:pass over the duplicate authors
-        if comment.author in authorLister:
-            pass
+        elif (comment.author in authorLister):
+            continue
         #/todo CHECK: pass over the duplicate authors/
 
         #todo CHECK: pass over dupe comments
-        if comment.body in keyDict:
-            pass
+        elif (comment.body in keyDict):
+            continue
         #/todo CHECK: pass over dupe comments/
 
         else: #if not a middleman, reply, duplicate author, or duplicate post
@@ -550,15 +551,17 @@ def main():
                                     pass
                                 #/NO MATCH HANDLING
 
-
-                        bigDict[itemCount] = {
-                                'timestamp': 5,
-                                'name': obj.getName(),
-                                'cert': obj.getCert(),
-                                'price': obj.getAvgPriceDollars(),
-                                'paint': obj.getPaint(),
-                                'itemCount': 1
-                        }
+                        try:
+                            bigDict[itemCount] = {
+                                    'timestamp': 5,
+                                    'name': obj.getName(),
+                                    'cert': obj.getCert(),
+                                    'price': obj.getAvgPriceDollars(),
+                                    'paint': obj.getPaint(),
+                                    'itemCount': 1
+                            }
+                        except UnboundLocalError:
+                            continue
 
                         certHolder = ''
                         paintHolder = ''
@@ -566,6 +569,6 @@ def main():
                         pass
 
         counter += 1
-    fire = firebase.FirebaseApplication('https://rlprices-9523a.firebaseio.com/', None)
-    fire.post('/priceupdates', bigDict)
+    #fire = firebase.FirebaseApplication('https://rlprices-9523a.firebaseio.com/', None)
+    #fire.post('/bigBatch1', bigDict)
 main()
